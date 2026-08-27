@@ -1,0 +1,22 @@
+{
+  "subjects": [
+    {
+      "name": "how many sites we actually serve",
+      "claimed": null,
+      "normalize": [
+        { "type": "trim" },
+        { "type": "lowercase" },
+        { "type": "strip-prefix", "value": "www." }
+      ],
+      "sources": [
+        { "name": "web-server", "command": "grep -rhoE '^\\\\s*server_name\\\\s+[^;]+;' /etc/nginx/sites-enabled/ | sed 's/server_name//;s/;//' | tr ' ' '\\\\n' | grep -v '^$'" },
+        { "name": "inventory-table", "command": "mysql -N -e \"SELECT domain FROM inventory WHERE status='active'\"" }
+      ],
+      "freshness": {
+        "name": "last-activity",
+        "days": 30,
+        "command": "mysql -N -e \"SELECT domain, last_activity FROM inventory\""
+      }
+    }
+  ]
+}
