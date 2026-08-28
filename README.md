@@ -117,6 +117,7 @@ a collection of made-up examples. It grows as we use it.
 <!-- RECORD — one line per subject exercised, with the date and what it found -->
 
 **2026-08-28 — an inventory table against the hosts a web server actually serves.**
+*The clearest case so far.*
 93 hostnames served, 47 rows marked active, 46 in both. One row was declared active
 with no virtual host anywhere on that machine: the domain is real and answers, but it
 is hosted elsewhere entirely — a different provider, a different IP. Nobody was
