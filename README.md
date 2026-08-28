@@ -23,9 +23,10 @@ different servers with no column telling them apart. Queried with
 `status = active` it answered `47`, and the `47` was true: it was the count of a
 set nobody had asked for.
 
-**The real perimeter found only by looking at the server.** Counting the hosts
-served by the web server instead of the rows in the table, the systems with the
-component installed were **41** — against the `47` from the table and a `16`
+**The real perimeter found only by looking at the server.** While measuring the
+coverage of our own Shield service — a post-quantum key agreement running on the
+client sites of our LINK network — we counted the hosts served by the web server
+instead of the rows in the table. The systems with the component installed were **41** — against the `47` from the table and a `16`
 estimated by hand. Three numbers, one measured.
 
 The common shape is always the same: **a full field saying something other than
@@ -130,6 +131,15 @@ a collection of made-up examples. It grows as we use it.
 - It does not decide, and it must not. Choosing which source is right is a
   decision, and a decision made silently by a program always picks the most
   convenient source, not the truest one.
+
+---
+
+
+## Where this comes from
+
+LANGA runs 16 digital services across 5 networks on its own infrastructure. This
+tool came out of a defect we hit while running them. See
+[How we work](https://about.langa.tv/come-lavoriamo/).
 
 ---
 
