@@ -144,6 +144,23 @@ of them says which set it counted, which is why they could sit next to each othe
 months without anyone noticing. The tool does not pick a winner: it prints the command
 behind each number, and the disagreement becomes a decision instead of a mystery.
 
+**2026-08-28 — a licence table against the installations it is supposed to cover.
+The run was wrong, and the tool showed why.**
+It reported total divergence: zero on one side, forty-four on the other. The zero was
+not a finding — the query named a column that does not exist, and the database
+returned an empty result with a success exit code. A source that answers nothing is
+indistinguishable from a source that has nothing, unless it fails outright, and this
+one did not. What caught it was the provenance line: the command is printed under
+every count, and reading it took the query back to a table that turned out to be
+keyed by purchased feature, not by site. The two were never comparable.
+
+**2026-08-28 — a source of truth against the local copies made from it. They agreed,
+after one did not.** Twelve repositories declared, twelve mirrored, no difference —
+but only on the second run. The first pass had cloned eleven: one repository name
+begins with a dot, and the shell glob that collected the results skipped it silently.
+Nothing failed and nothing was reported; the count was simply one short. The check
+that found it was comparing the list against itself.
+
 *(in progress — the tool has been in use since 28 August 2026)*
 
 ---
@@ -164,6 +181,12 @@ behind each number, and the disagreement becomes a decision instead of a mystery
 - **Noise comes back as keys.** A web server's catch-all name, a placeholder row, a
   blank entry: they are real output and the tool counts them. Read the "only in"
   lists before believing a divergence.
+- **An empty answer is not a failure.** A query naming a column that does not exist,
+  a command whose filter matches nothing, a permission that silently hides rows: these
+  return zero lines with a success exit code, and the tool counts them as a source
+  with no keys. Direction 3 protects against a source that *fails*; nothing protects
+  against a source that *answers nothing*. The provenance line under each count is
+  what makes that recoverable — read the command before believing a zero.
 - It does not decide, and it must not. Choosing which source is right is a
   decision, and a decision made silently by a program always picks the most
   convenient source, not the truest one.
