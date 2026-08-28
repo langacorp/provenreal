@@ -116,6 +116,33 @@ a collection of made-up examples. It grows as we use it.
 
 <!-- RECORD — one line per subject exercised, with the date and what it found -->
 
+**2026-08-28 — an inventory table against the hosts a web server actually serves.**
+93 hostnames served, 47 rows marked active, 46 in both. One row was declared active
+with no virtual host anywhere on that machine: the domain is real and answers, but it
+is hosted elsewhere entirely — a different provider, a different IP. Nobody was
+looking for it, and no status check would have found it: the site is up.
+
+**2026-08-28 — a service's own records against the machines that actually run it.**
+41 installations with the component on disk, 47 live records, 39 in both. The
+interesting part was not the gap: it was that the two sources do not speak the same
+language. One is keyed by domain, the other by filesystem path, and a path is not a
+domain — an installation living in a subdirectory has no domain in its key at all.
+The counts had been compared for weeks without anyone noticing they were counting in
+two different key spaces.
+
+**2026-08-28 — a register against the page that reads it. They agreed.**
+Two entries declared live, two rendered, no difference. Worth recording precisely
+because it found nothing: a register and its consumer had been wired together the
+same day, and this is the check that says the wiring holds. An agreement measured is
+not the same as an agreement assumed, and only one of the two can be shown to anyone.
+
+**2026-08-28 — a number we publish, against the catalogue it is supposed to come from.**
+One page claims 25, a function derives 26, and a third figure — 16 — was in use on two
+other public pages and in an organisation profile. All three are true as counts. None
+of them says which set it counted, which is why they could sit next to each other for
+months without anyone noticing. The tool does not pick a winner: it prints the command
+behind each number, and the disagreement becomes a decision instead of a mystery.
+
 *(in progress — the tool has been in use since 28 August 2026)*
 
 ---
@@ -128,6 +155,14 @@ a collection of made-up examples. It grows as we use it.
 - A source is a shell command: it **inherits the permissions of whoever runs
   it**, and whatever it cannot read comes back as absent. Coverage states this,
   but reading it is the responsibility of whoever looks.
+- **Sources often live on different machines.** That is the normal case, not the
+  exception: an inventory usually lives where the application is, and the truth
+  usually lives where the traffic is. A source is a shell command, so reaching the
+  other machine is the caller's problem. A source that cannot reach its machine is
+  reported as `unmeasured`: correct, but not useful.
+- **Noise comes back as keys.** A web server's catch-all name, a placeholder row, a
+  blank entry: they are real output and the tool counts them. Read the "only in"
+  lists before believing a divergence.
 - It does not decide, and it must not. Choosing which source is right is a
   decision, and a decision made silently by a program always picks the most
   convenient source, not the truest one.
