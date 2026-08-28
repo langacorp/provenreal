@@ -203,6 +203,23 @@ repository name began with a dot and a shell glob skipped it silently.
 ---
 
 
+## The other three
+
+`realroute`, `leakform`, `samecheck` and `provenreal` came out of the same
+weeks of measuring. Each one is standalone and depends on none of the others.
+
+- **[realroute](https://github.com/langacorp/realroute)** — checks that a route
+  really exists, by content and not by status code. Born from a site that answered
+  200 to an address that could not exist.
+- **[leakform](https://github.com/langacorp/leakform)** — finds secrets in a git
+  repository by shape, across every ref. Born from a repository that was searched
+  for the first time five years after its last commit.
+- **[samecheck](https://github.com/langacorp/samecheck)** — measures whether the
+  copies that should be identical still are. Born from a component installed 47
+  times in six different versions.
+
+---
+
 ## Where this comes from
 
 LANGA runs 16 digital services across 5 networks on its own infrastructure. This
