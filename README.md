@@ -161,6 +161,15 @@ begins with a dot, and the shell glob that collected the results skipped it sile
 Nothing failed and nothing was reported; the count was simply one short. The check
 that found it was comparing the list against itself.
 
+**2026-08-28 — an empty answer that looked like a finding.** A query named a column
+that does not exist; the database returned nothing and exited successfully. The tool
+reported total divergence — zero on one side, forty-four on the other — and the zero
+was not a finding at all. Direction 3 protects against a source that *fails*. Nothing
+protects against a source that *answers nothing*: from the outside the two are
+identical. Found by reading the provenance line, which is the only reason it was
+recoverable. Same family as the mirror set that came back one short because a
+repository name began with a dot and a shell glob skipped it silently.
+
 *(in progress — the tool has been in use since 28 August 2026)*
 
 ---
