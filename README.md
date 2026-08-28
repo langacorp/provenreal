@@ -24,8 +24,8 @@ different servers with no column telling them apart. Queried with
 set nobody had asked for.
 
 **The real perimeter found only by looking at the server.** While measuring the
-coverage of our own Shield service — a post-quantum key agreement running on the
-client sites of our LINK network — we counted the hosts served by the web server
+coverage of [easy.langa.tv/shield](https://easy.langa.tv/shield) — a post-quantum key
+agreement running on the client sites of [link.langa.tv](https://link.langa.tv) — we counted the hosts served by the web server
 instead of the rows in the table. The systems with the component installed were **41** — against the `47` from the table and a `16`
 estimated by hand. Three numbers, one measured.
 
