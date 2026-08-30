@@ -24,10 +24,10 @@ different servers with no column telling them apart. Queried with
 set nobody had asked for.
 
 **The real perimeter found only by looking at the server.** While measuring the
-coverage of [easy.langa.tv/shield](https://easy.langa.tv/shield) — a post-quantum key
-agreement running on the client sites of [link.langa.tv](https://link.langa.tv) — we counted the hosts served by the web server
-instead of the rows in the table. The systems with the component installed were **41** — against the `47` from the table and a `16`
-estimated by hand. Three numbers, one measured.
+coverage of a key-agreement service of ours — a post-quantum key
+agreement running on client sites we operate — we counted the hosts served by the web server
+instead of the rows in the table. The measured perimeter, the inventory table and a hand estimate gave **three
+different numbers**. Only one of them had been counted.
 
 The common shape is always the same: **a full field saying something other than
 what is there.** No completeness check sees it, because nothing is missing.
@@ -118,7 +118,8 @@ a collection of made-up examples. It grows as we use it.
 
 **2026-08-28 — an inventory table against the hosts a web server actually serves.**
 *The clearest case so far.*
-93 hostnames served, 47 rows marked active, 46 in both. One row was declared active
+The hostnames a web server actually served, against the rows an inventory table
+marked active. One row was declared active
 with no virtual host anywhere on that machine: the domain is real and answers, but it
 is hosted elsewhere entirely — a different provider, a different IP. Nobody was
 looking for it, and no status check would have found it: the site is up.
