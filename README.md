@@ -20,13 +20,12 @@ had been taken from.
 
 **Three sets mixed in one table.** An inventory table held the systems of two
 different servers with no column telling them apart. Queried with
-`status = active` it answered `47`, and the `47` was true: it was the count of a
+`status = active` it gave a number, and the number was true: it was the count of a
 set nobody had asked for.
 
-**The real perimeter found only by looking at the server.** While measuring the
-coverage of a key-agreement service of ours — a post-quantum key
-agreement running on client sites we operate — we counted the hosts served by the web server
-instead of the rows in the table. The measured perimeter, the inventory table and a hand estimate gave **three
+**The real perimeter found only by looking at the server.** While measuring how
+widely one of our own components was installed, we counted the hosts the web
+server actually serves instead of the rows in the inventory table. The measured perimeter, the inventory table and a hand estimate gave **three
 different numbers**. Only one of them had been counted.
 
 The common shape is always the same: **a full field saying something other than
@@ -125,8 +124,8 @@ is hosted elsewhere entirely — a different provider, a different IP. Nobody wa
 looking for it, and no status check would have found it: the site is up.
 
 **2026-08-28 — a service's own records against the machines that actually run it.**
-41 installations with the component on disk, 47 live records, 39 in both. The
-interesting part was not the gap: it was that the two sources do not speak the same
+The installations found on disk, the live records in the table and the overlap
+between them gave three different numbers. The interesting part was not the gap: it was that the two sources do not speak the same
 language. One is keyed by domain, the other by filesystem path, and a path is not a
 domain — an installation living in a subdirectory has no domain in its key at all.
 The counts had been compared for weeks without anyone noticing they were counting in
@@ -216,8 +215,8 @@ weeks of measuring. Each one is standalone and depends on none of the others.
   repository by shape, across every ref. Born from a repository that was searched
   for the first time five years after its last commit.
 - **[samecheck](https://github.com/langacorp/samecheck)** — measures whether the
-  copies that should be identical still are. Born from a component installed 47
-  times in six different versions.
+  copies that should be identical still are. Born from a component that turned
+  out to have six distinct contents across its installations.
 
 ---
 
