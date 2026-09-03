@@ -154,7 +154,9 @@ returned an empty result with a success exit code. A source that answers nothing
 indistinguishable from a source that has nothing, unless it fails outright, and this
 one did not. What caught it was the provenance line: the command is printed under
 every count, and reading it took the query back to a table that turned out to be
-keyed by purchased feature, not by site. The two were never comparable.
+keyed by purchased feature, not by site. The two were never comparable. Same
+family as the mirror set that came back one short because a repository name began
+with a dot and a shell glob skipped it silently.
 
 **2026-08-28 — a source of truth against the local copies made from it. They agreed,
 after one did not.** Twelve repositories declared, twelve mirrored, no difference —
@@ -162,15 +164,6 @@ but only on the second run. The first pass had cloned eleven: one repository nam
 begins with a dot, and the shell glob that collected the results skipped it silently.
 Nothing failed and nothing was reported; the count was simply one short. The check
 that found it was comparing the list against itself.
-
-**2026-08-28 — an empty answer that looked like a finding.** A query named a column
-that does not exist; the database returned nothing and exited successfully. The tool
-reported total divergence — zero on one side, forty-four on the other — and the zero
-was not a finding at all. Direction 3 protects against a source that *fails*. Nothing
-protects against a source that *answers nothing*: from the outside the two are
-identical. Found by reading the provenance line, which is the only reason it was
-recoverable. Same family as the mirror set that came back one short because a
-repository name began with a dot and a shell glob skipped it silently.
 
 *(in progress — the tool has been in use since 28 August 2026)*
 
@@ -205,20 +198,25 @@ repository name began with a dot and a shell glob skipped it silently.
 ---
 
 
-## The other three
+## The other tools
 
-`realroute`, `leakform`, `samecheck` and `provenreal` came out of the same
-weeks of measuring. Each one is standalone and depends on none of the others.
+Each came out of a defect measured on our own estate. Each one is standalone
+and depends on none of the others.
 
 - **[realroute](https://github.com/langacorp/realroute)** — checks that a route
-  really exists, by content and not by status code. Born from a site that answered
-  200 to an address that could not exist.
+  really exists, by content and not by status code.
 - **[leakform](https://github.com/langacorp/leakform)** — finds secrets in a git
-  repository by shape, across every ref. Born from a repository that was searched
-  for the first time five years after its last commit.
+  repository by shape, across every ref.
 - **[samecheck](https://github.com/langacorp/samecheck)** — measures whether the
-  copies that should be identical still are. Born from a component that turned
-  out to have six distinct contents across its installations.
+  copies that should be identical still are, and never says which one is right.
+- **[countdrift](https://github.com/langacorp/countdrift)** — finds numbers
+  written by hand that no longer match their source.
+- **[kemproof](https://github.com/langacorp/kemproof)** — attests that an
+  ML-KEM-768 key exchange really happened. It does not encrypt anything.
+
+The set is kept on the [organisation profile](https://github.com/langacorp).
+It is not written here as a count, because a number typed by hand is the thing
+countdrift exists to find.
 
 ---
 
