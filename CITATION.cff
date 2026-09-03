@@ -1,0 +1,15 @@
+cff-version: 1.2.0
+message: If you use this software, please cite it as below.
+type: software
+title: "provenreal"
+abstract: "Compare what a system claims with what can be measured, from independent sources. The check AEGIS runs before a number is allowed into a report."
+authors:
+  - name: "LANGA Corp. Srl"
+    city: Milan
+    country: IT
+    website: "https://langa.tv"
+repository-code: "https://github.com/langacorp/provenreal"
+url: "https://github.com/langacorp/provenreal"
+license: MIT
+version: "1.0.0"
+date-released: "2026-08-28"
