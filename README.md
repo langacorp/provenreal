@@ -1,6 +1,7 @@
 # provenreal
 
 [![self-test](https://github.com/langacorp/provenreal/actions/workflows/selftest.yml/badge.svg)](https://github.com/langacorp/provenreal/actions/workflows/selftest.yml)
+[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.22298832-blue)](https://doi.org/10.5281/zenodo.22298832)
 
 Compare what a system **claims** with what can be **measured**, from
 independent sources. It does not say which source is right: it says where they
