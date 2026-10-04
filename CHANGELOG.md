@@ -44,6 +44,9 @@ Dates are the date of the commit, not of a release.
   before. The version is read from `__version__` in the module, one place.
 - `tests/`: a unit test suite with the standard library, beside the
   self-test. Run with `python3 -m unittest discover -s tests -v`.
+- CI: runs the unit tests and the installed command after the self-test, on
+  Python 3.9, 3.11 and 3.13, with actions/checkout@v5 and
+  actions/setup-python@v6. Permissions stay read-only.
 
 ## 2026-09-04
 
