@@ -53,7 +53,7 @@ import subprocess
 import sys
 import time
 
-__version__ = "0.1.0"
+__version__ = "1.1.0"
 
 AGREE = "agree"
 DIVERGE = "diverge"

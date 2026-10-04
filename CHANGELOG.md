@@ -5,6 +5,11 @@ Dates are the date of the commit, not of a release.
 
 ## Unreleased
 
+Prepared as v1.1.0, dated 2026-10-04, not tagged.
+
+- `__version__` is 1.1.0. Release v1.0.1 still carried 0.1.0, so
+  `--version` and the `version` field in `--json` reported 0.1.0 on that
+  release. CITATION.cff version and date follow.
 - Exit codes: one rule for the text report and for `--json`. Before, `--json`
   exited 0 when no comparison was made and 0 when keys were stale, while the
   text report exited 2 and 1 for the same runs. **Changed meaning**: a run
