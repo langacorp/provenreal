@@ -101,6 +101,34 @@ Eight directions, all asserted, any one failing fails the test:
 Direction 3 is the one that costs most when it is missing, which is why it is a
 distinct verdict and not a footnote.
 
+The self-test travels with the file. The unit tests in `tests/` go further:
+every verdict and exit code in both directions, and one test for each defect
+found since the first release, each seen failing on the code before its fix.
+
+```
+python3 -m unittest discover -s tests -v
+```
+
+---
+
+## Install
+
+It is a single file with no dependencies, and it runs as it is:
+
+```
+python3 provenreal.py --selftest
+```
+
+Or install the `provenreal` command from the repository (it is not on PyPI):
+
+```
+pipx install git+https://github.com/langacorp/provenreal
+pip install git+https://github.com/langacorp/provenreal
+```
+
+Python 3.9 or newer. Sources are run through `/bin/sh`, so it is meant for
+POSIX systems.
+
 ---
 
 ## Use
@@ -108,6 +136,7 @@ distinct verdict and not a footnote.
 ```
 python3 provenreal.py -c subjects.json
 python3 provenreal.py -c subjects.json --json
+provenreal --version
 ```
 
 See `example.json`. Each subject declares its own sources, the shared

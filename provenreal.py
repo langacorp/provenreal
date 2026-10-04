@@ -703,5 +703,10 @@ def main(argv=None):
     return report(results)
 
 
-if __name__ == "__main__":
+def main_exit():
+    """Entry point for the installed `provenreal` command."""
     sys.exit(main())
+
+
+if __name__ == "__main__":
+    main_exit()

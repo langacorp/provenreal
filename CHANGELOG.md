@@ -39,6 +39,11 @@ Dates are the date of the commit, not of a release.
   seconds. Before, `2020-01-01T10:00:00Z` was counted as undated, so a key
   six years old was not reported as stale. Dates with no zone are read in
   local time, as before.
+- `pyproject.toml`: installable with pip or pipx from the repository, as a
+  `provenreal` command. No dependencies. `python3 provenreal.py` works as
+  before. The version is read from `__version__` in the module, one place.
+- `tests/`: a unit test suite with the standard library, beside the
+  self-test. Run with `python3 -m unittest discover -s tests -v`.
 
 ## 2026-09-04
 

@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "provenreal"
+dynamic = ["version"]
+description = "Compare what a system claims with what can be measured, from independent sources. It does not decide who is right."
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+authors = [{name = "LANGA Corp. Srl", email = "opensource@langa.tv"}]
+dependencies = []
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX",
+    "Environment :: Console",
+]
+
+[project.urls]
+Homepage = "https://github.com/langacorp/provenreal"
+Source = "https://github.com/langacorp/provenreal"
+Changelog = "https://github.com/langacorp/provenreal/blob/main/CHANGELOG.md"
+
+[project.scripts]
+provenreal = "provenreal:main_exit"
+
+[tool.setuptools]
+py-modules = ["provenreal"]
+
+[tool.setuptools.dynamic]
+version = {attr = "provenreal.__version__"}
