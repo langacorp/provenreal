@@ -69,7 +69,10 @@ another number.
 - **declares its coverage**: how many sources answered out of how many were
   declared, and which did not and why
 
-Exit codes: `0` everything agrees · `1` divergence · `2` no comparison was made.
+Exit codes: `0` everything agrees · `1` divergence · `2` something declared
+was not measured — no comparison was possible for a subject, or its freshness
+command failed. Divergence wins over `2`. `--json` exits with the same codes as
+the text report.
 
 ---
 
