@@ -93,6 +93,16 @@ def run_command(command, timeout):
     return proc.returncode, out or b"", err or b""
 
 
+def decode_lines(data):
+    """Bytes to lines of text, one key per line.
+
+    Bytes that are not UTF-8 are kept as \\xNN escapes. Replacing them with
+    U+FFFD, as before, turned b"caf\\xe9" and b"caf\\xe8" into the same key,
+    and two different keys were counted as one.
+    """
+    return data.decode("utf-8", "backslashreplace").split("\n")
+
+
 def describe_exit(returncode, stderr):
     err = stderr.decode("utf-8", "replace").strip()
     return f"exit {returncode}" + (f": {err[:120]}" if err else "")
@@ -131,8 +141,7 @@ class Source:
             self.failed = describe_exit(rc, err)
             return self
 
-        lines = [l.strip() for l in
-                 out.decode("utf-8", "replace").split("\n")]
+        lines = [l.strip() for l in decode_lines(out)]
         lines = [l for l in lines if l]
         self.raw_count = len(lines)
         self.keys = {apply_normalize(l, self.normalize_spec) for l in lines}
@@ -359,7 +368,7 @@ def check_freshness(subject, timeout=60):
     max_days = int(spec.get("days", 30))
     now = time.time()
     stale, fresh, undated = [], 0, []
-    for line in out.decode("utf-8", "replace").split("\n"):
+    for line in decode_lines(out):
         if not line.strip():
             continue
         parts = line.split("\t")

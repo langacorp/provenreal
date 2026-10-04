@@ -25,6 +25,27 @@ def alive(pid):
 
 class Encoding(unittest.TestCase):
 
+    def test_two_different_undecodable_keys_stay_two(self):
+        # Before: b'caf\xe9' and b'caf\xe8' both decoded to 'caf\ufffd',
+        # became one key, and the comparison agreed with a source that had
+        # only one of them.
+        r = pr.compare(subject("s", [
+            src("A", "printf 'caf\\351\\ncaf\\350\\n'"),
+            src("B", "printf 'caf\\351\\n'")]))
+        self.assertEqual(r["sources"][0]["keys"], 2)
+        self.assertEqual(r["verdict"], pr.DIVERGE)
+
+    def test_undecodable_keys_can_be_printed_and_dumped(self):
+        from helpers import run_cli
+        cfg = {"subjects": [subject("s", [
+            src("A", "printf 'caf\\351\\n'"), src("B", "printf 'x\\n'")])]}
+        rc, out, err = run_cli(cfg)
+        self.assertEqual(rc, 1, err)
+        self.assertIn("caf\\xe9", out)
+        rc, out, err = run_cli(cfg, "--json")
+        self.assertEqual(rc, 1, err)
+        self.assertIn("caf\\\\xe9", out)
+
     def test_same_undecodable_bytes_still_agree(self):
         r = pr.compare(subject("s", [src("A", "printf 'caf\\351\\n'"),
                                      src("B", "printf 'caf\\351\\n'")]))
