@@ -100,6 +100,29 @@ class FreshnessDates(unittest.TestCase):
         return pr.check_freshness({"name": "s", "sources": [], "freshness": {
             "name": "d", "days": 30, "command": cmd}})
 
+    def test_iso_dates_with_zone_or_fraction_are_dated(self):
+        # Before: all three were 'undated', so a six-year-old key was not
+        # reported as stale and the run exited 0.
+        r = self.run_dates([("z", "2020-01-01T10:00:00Z"),
+                            ("off", "2020-01-01T10:00:00+02:00"),
+                            ("frac", "2020-01-01 10:00:00.123456")])
+        self.assertEqual(r["undated"], [])
+        self.assertEqual(sorted(v["key"] for v in r["stale"]),
+                         ["frac", "off", "z"])
+
+    def test_offset_is_applied(self):
+        a = pr.parse_timestamp("2020-01-01T10:00:00Z")
+        b = pr.parse_timestamp("2020-01-01T12:00:00+02:00")
+        c = pr.parse_timestamp("2020-01-01T05:30:00-0430")
+        self.assertEqual(a, b)
+        self.assertEqual(a, c)
+
+    def test_recent_iso_date_with_zone_is_recent(self):
+        import datetime
+        now = datetime.datetime.now(datetime.timezone.utc)
+        r = self.run_dates([("a", now.strftime("%Y-%m-%dT%H:%M:%SZ"))])
+        self.assertEqual(r["recent"], 1)
+
     def test_not_a_date_is_still_undated(self):
         r = self.run_dates([("a", "never"), ("b", "0000-00-00 00:00:00"),
                             ("c", "NULL")])
