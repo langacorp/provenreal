@@ -73,6 +73,9 @@ Exit codes: `0` everything agrees · `1` divergence · `2` something declared
 was not measured — no comparison was possible for a subject, or its freshness
 command failed. Divergence wins over `2`. `--json` exits with the same codes as
 the text report.
+A configuration that cannot be read, or that does not mean what it says (an
+unknown normalisation rule, a claimed number that is not an integer, two
+sources with the same name), is refused before anything runs, with exit `2`.
 
 ---
 

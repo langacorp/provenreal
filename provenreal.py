@@ -136,6 +136,99 @@ def apply_normalize(value, spec):
     return v
 
 
+NORMALIZE_RULES = {
+    "lowercase": (),
+    "trim": (),
+    "strip-prefix": ("value",),
+    "strip-suffix": ("value",),
+    "regex": ("find",),
+}
+
+
+class ConfigError(Exception):
+    """The configuration does not say what it seems to say."""
+
+
+def validate_config(cfg):
+    """Check the configuration before anything runs.
+
+    A rule with a misspelt type used to be skipped while the report said
+    normalisation was applied; a claimed number written as a string was never
+    compared; two sources with the same name overwrote each other's count.
+    Each of these ran and gave a verdict. A configuration that does not mean
+    what it says is refused here instead, with the reason.
+    """
+    if not isinstance(cfg, dict) or not isinstance(cfg.get("subjects"), list):
+        raise ConfigError('the top level must be an object with a "subjects" '
+                          'list')
+    for i, subj in enumerate(cfg["subjects"]):
+        where = f"subjects[{i}]"
+        if not isinstance(subj, dict):
+            raise ConfigError(f"{where}: must be an object")
+        if not isinstance(subj.get("name"), str):
+            raise ConfigError(f'{where}: "name" must be a string')
+        where = f"subject {subj['name']!r}"
+
+        sources = subj.get("sources")
+        if not isinstance(sources, list):
+            raise ConfigError(f'{where}: "sources" must be a list')
+        seen = set()
+        for j, so in enumerate(sources):
+            if not isinstance(so, dict):
+                raise ConfigError(f"{where}: sources[{j}] must be an object")
+            for field in ("name", "command"):
+                if not isinstance(so.get(field), str) or not so[field]:
+                    raise ConfigError(f'{where}: sources[{j}] needs a '
+                                      f'non-empty "{field}" string')
+            if so["name"] in seen:
+                raise ConfigError(f"{where}: two sources are named "
+                                  f"{so['name']!r}; counts are reported by "
+                                  f"name, so one would hide the other")
+            seen.add(so["name"])
+
+        c = subj.get("claimed")
+        if c is not None and (isinstance(c, bool) or not isinstance(c, int)):
+            raise ConfigError(f'{where}: "claimed" must be an integer or null, '
+                              f'got {c!r}')
+
+        norm = subj.get("normalize", [])
+        if not isinstance(norm, list):
+            raise ConfigError(f'{where}: "normalize" must be a list')
+        for k, rule in enumerate(norm):
+            kind = rule.get("type") if isinstance(rule, dict) else None
+            if kind not in NORMALIZE_RULES:
+                raise ConfigError(f"{where}: normalize[{k}] has unknown type "
+                                  f"{kind!r}; known: "
+                                  f"{', '.join(sorted(NORMALIZE_RULES))}")
+            for field in NORMALIZE_RULES[kind]:
+                if not isinstance(rule.get(field), str):
+                    raise ConfigError(f'{where}: normalize[{k}] ({kind}) needs '
+                                      f'a "{field}" string')
+            if kind == "regex":
+                if not isinstance(rule.get("replace", ""), str):
+                    raise ConfigError(f'{where}: normalize[{k}] (regex) '
+                                      f'"replace" must be a string')
+                try:
+                    re.compile(rule["find"])
+                except re.error as e:
+                    raise ConfigError(f"{where}: normalize[{k}] (regex) does "
+                                      f"not compile: {e}")
+
+        fr = subj.get("freshness")
+        if fr is not None:
+            if not isinstance(fr, dict):
+                raise ConfigError(f'{where}: "freshness" must be an object')
+            for field in ("name", "command"):
+                if not isinstance(fr.get(field), str) or not fr[field]:
+                    raise ConfigError(f'{where}: freshness needs a non-empty '
+                                      f'"{field}" string')
+            d = fr.get("days", 30)
+            if isinstance(d, bool) or not isinstance(d, int) or d < 0:
+                raise ConfigError(f'{where}: freshness "days" must be a '
+                                  f'non-negative integer, got {d!r}')
+    return cfg
+
+
 # --------------------------------------------------------------------------
 # comparison
 # --------------------------------------------------------------------------
@@ -506,8 +599,17 @@ def main(argv=None):
     if not args.config:
         p.error("--config is required (or use --selftest)")
 
-    with open(args.config, encoding="utf-8") as fh:
-        cfg = json.load(fh)
+    try:
+        with open(args.config, encoding="utf-8") as fh:
+            cfg = json.load(fh)
+    except OSError as e:
+        p.error(f"cannot read {args.config}: {e.strerror or e}")
+    except ValueError as e:
+        p.error(f"{args.config} is not valid JSON: {e}")
+    try:
+        validate_config(cfg)
+    except ConfigError as e:
+        p.error(f"{args.config}: {e}")
 
     results = []
     for subject in cfg["subjects"]:
