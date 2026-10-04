@@ -32,6 +32,10 @@ Dates are the date of the commit, not of a release.
   `command` added to the freshness object in `--json`. Every other count
   already did.
 
+- Output that is not valid UTF-8 keeps its bytes as `\xNN` escapes. Before,
+  every undecodable byte became U+FFFD, so `caf\xe9` and `caf\xe8` were one
+  key: a source with both agreed with a source that had only one.
+
 ## 2026-09-04
 
 - CITATION.cff: version and date match the release. Zenodo reads this file, so a
