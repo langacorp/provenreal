@@ -14,6 +14,15 @@ Dates are the date of the commit, not of a release.
   keys now exits 1 and its freshness is printed; before it exited 2 and the
   stale keys were not shown.
 
+- The configuration is checked before anything runs, and a configuration
+  error exits 2 with one line on stderr instead of a traceback with exit 1,
+  which is the code for divergence. Measured before this change: a normalize
+  rule with a misspelt type (`lower-case`) was skipped while the report said
+  normalisation was applied to every source; `"claimed": "25"` was never
+  compared and the subject agreed; `"claimed": true` was compared as 1; two
+  sources with the same name overwrote each other's count, and a false claim
+  was reported as holding. All four are now refused, with the reason.
+
 ## 2026-09-04
 
 - CITATION.cff: version and date match the release. Zenodo reads this file, so a
