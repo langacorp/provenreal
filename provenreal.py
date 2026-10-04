@@ -44,6 +44,7 @@ Standard library only.
 """
 
 import argparse
+import calendar
 import json
 import os
 import re
@@ -344,6 +345,36 @@ def compare(subject, timeout=60):
 # freshness
 # --------------------------------------------------------------------------
 
+_TS = re.compile(r"^(\d{4}-\d{2}-\d{2})(?:[T ](\d{2}:\d{2}:\d{2})(?:\.\d+)?)?"
+                 r"\s*(Z|[+-]\d{2}:?\d{2})?$")
+
+
+def parse_timestamp(raw):
+    """Seconds since the epoch, or None if `raw` is not a date.
+
+    Accepted: YYYY-MM-DD, with an optional time after "T" or a space,
+    optional fractional seconds, and an optional "Z" or +HH:MM offset. A date
+    with no zone is read in local time, as before. Before, a "Z", an offset
+    or a fraction made the key undated, and a key years old was not stale.
+    """
+    m = _TS.match(raw)
+    if not m:
+        return None
+    date, clock, zone = m.groups()
+    try:
+        t = time.strptime(f"{date} {clock or '00:00:00'}", "%Y-%m-%d %H:%M:%S")
+    except ValueError:
+        return None
+    if not zone:
+        return time.mktime(t)
+    offset = 0
+    if zone != "Z":
+        z = zone.replace(":", "")
+        offset = (int(z[1:3]) * 3600 + int(z[3:5]) * 60) * (1 if z[0] == "+"
+                                                             else -1)
+    return calendar.timegm(t) - offset
+
+
 def check_freshness(subject, timeout=60):
     """Last activity against a declared threshold.
 
@@ -374,13 +405,7 @@ def check_freshness(subject, timeout=60):
         parts = line.split("\t")
         key = apply_normalize(parts[0].strip(), subject.get("normalize", []))
         raw = parts[1].strip() if len(parts) > 1 else ""
-        ts = None
-        for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d", "%Y-%m-%dT%H:%M:%S"):
-            try:
-                ts = time.mktime(time.strptime(raw, fmt))
-                break
-            except (ValueError, TypeError):
-                continue
+        ts = parse_timestamp(raw)
         if ts is None:
             undated.append(key)
             continue

@@ -35,6 +35,10 @@ Dates are the date of the commit, not of a release.
 - Output that is not valid UTF-8 keeps its bytes as `\xNN` escapes. Before,
   every undecodable byte became U+FFFD, so `caf\xe9` and `caf\xe8` were one
   key: a source with both agreed with a source that had only one.
+- Freshness reads ISO dates with a `Z`, a `+HH:MM` offset or fractional
+  seconds. Before, `2020-01-01T10:00:00Z` was counted as undated, so a key
+  six years old was not reported as stale. Dates with no zone are read in
+  local time, as before.
 
 ## 2026-09-04
 
