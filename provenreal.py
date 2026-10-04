@@ -45,7 +45,9 @@ Standard library only.
 
 import argparse
 import json
+import os
 import re
+import signal
 import subprocess
 import sys
 import time
@@ -60,6 +62,41 @@ UNMEASURED = "unmeasured"
 # --------------------------------------------------------------------------
 # sources
 # --------------------------------------------------------------------------
+
+class CommandTimeout(Exception):
+    pass
+
+
+def run_command(command, timeout):
+    """Run a shell command; return (returncode, stdout bytes, stderr bytes).
+
+    The command runs in its own process group, and on timeout the whole group
+    is killed. Killing only the shell, as subprocess.run does, left its
+    children running after the report had already called the source
+    unmeasured.
+    """
+    posix = hasattr(os, "killpg")
+    proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE, start_new_session=posix)
+    try:
+        out, err = proc.communicate(timeout=timeout)
+    except subprocess.TimeoutExpired:
+        if posix:
+            try:
+                os.killpg(proc.pid, signal.SIGKILL)
+            except OSError:
+                pass  # the group is already gone: nothing left to kill
+        else:
+            proc.kill()
+        proc.communicate()
+        raise CommandTimeout(f"timed out after {timeout}s")
+    return proc.returncode, out or b"", err or b""
+
+
+def describe_exit(returncode, stderr):
+    err = stderr.decode("utf-8", "replace").strip()
+    return f"exit {returncode}" + (f": {err[:120]}" if err else "")
+
 
 class Source:
     """A source: a command printing one key per line.
@@ -80,10 +117,9 @@ class Source:
     def run(self, timeout=60):
         t0 = time.time()
         try:
-            r = subprocess.run(self.command, shell=True, capture_output=True,
-                               timeout=timeout)
-        except subprocess.TimeoutExpired:
-            self.failed = f"timed out after {timeout}s"
+            rc, out, err = run_command(self.command, timeout)
+        except CommandTimeout as e:
+            self.failed = str(e)
             return self
         except OSError as e:
             self.failed = f"{type(e).__name__}: {e}"
@@ -91,13 +127,12 @@ class Source:
         finally:
             self.duration = round(time.time() - t0, 2)
 
-        if r.returncode != 0:
-            err = (r.stderr or b"").decode("utf-8", "replace").strip()
-            self.failed = f"exit {r.returncode}" + (f": {err[:120]}" if err else "")
+        if rc != 0:
+            self.failed = describe_exit(rc, err)
             return self
 
         lines = [l.strip() for l in
-                 (r.stdout or b"").decode("utf-8", "replace").split("\n")]
+                 out.decode("utf-8", "replace").split("\n")]
         lines = [l for l in lines if l]
         self.raw_count = len(lines)
         self.keys = {apply_normalize(l, self.normalize_spec) for l in lines}
@@ -311,17 +346,20 @@ def check_freshness(subject, timeout=60):
         return None
     s = Source(spec["name"], spec["command"], subject.get("normalize", []))
     try:
-        r = subprocess.run(s.command, shell=True, capture_output=True,
-                           timeout=timeout)
-        if r.returncode != 0:
-            return {"source": s.name, "failed": f"exit {r.returncode}"}
-    except Exception as e:
-        return {"source": s.name, "failed": f"{type(e).__name__}"}
+        rc, out, err = run_command(s.command, timeout)
+    except CommandTimeout as e:
+        return {"source": s.name, "command": s.command, "failed": str(e)}
+    except OSError as e:
+        return {"source": s.name, "command": s.command,
+                "failed": f"{type(e).__name__}: {e}"}
+    if rc != 0:
+        return {"source": s.name, "command": s.command,
+                "failed": describe_exit(rc, err)}
 
     max_days = int(spec.get("days", 30))
     now = time.time()
     stale, fresh, undated = [], 0, []
-    for line in (r.stdout or b"").decode("utf-8", "replace").split("\n"):
+    for line in out.decode("utf-8", "replace").split("\n"):
         if not line.strip():
             continue
         parts = line.split("\t")
@@ -342,7 +380,8 @@ def check_freshness(subject, timeout=60):
             stale.append({"key": key, "days": round(age, 1)})
         else:
             fresh += 1
-    return {"source": s.name, "threshold_days": max_days, "recent": fresh,
+    return {"source": s.name, "command": s.command,
+            "threshold_days": max_days, "recent": fresh,
             "stale": sorted(stale, key=lambda x: -x["days"]),
             "undated": sorted(undated), "failed": None}
 
@@ -427,6 +466,9 @@ def report(results, stream=sys.stdout):
                                  f"{f['command']}\n")
 
         fr = res.get("freshness")
+        if fr:
+            stream.write(f"    freshness {fr['source']} from: "
+                         f"{fr.get('command')}\n")
         if fr and not fr.get("failed"):
             if fr["stale"]:
                 stream.write(f"  ! {len(fr['stale'])} past {fr['threshold_days']} "

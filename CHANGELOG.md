@@ -13,7 +13,6 @@ Dates are the date of the commit, not of a release.
   what was declared was not measured. A subject with no comparison but stale
   keys now exits 1 and its freshness is printed; before it exited 2 and the
   stale keys were not shown.
-
 - The configuration is checked before anything runs, and a configuration
   error exits 2 with one line on stderr instead of a traceback with exit 1,
   which is the code for divergence. Measured before this change: a normalize
@@ -22,6 +21,16 @@ Dates are the date of the commit, not of a release.
   compared and the subject agreed; `"claimed": true` was compared as 1; two
   sources with the same name overwrote each other's count, and a false claim
   was reported as holding. All four are now refused, with the reason.
+- A source or freshness command that times out is killed with its whole
+  process group. Measured before: the shell was killed and its child kept
+  running after the report had called the source not measured.
+- Freshness failures keep the reason (`exit 4: no such table`, `timed out
+  after 1s`) instead of the exit code alone or the exception class name.
+  Before, a freshness command that timed out was reported as
+  `TimeoutExpired`, with no duration.
+- The freshness count carries its command: printed in the report, and
+  `command` added to the freshness object in `--json`. Every other count
+  already did.
 
 ## 2026-09-04
 
