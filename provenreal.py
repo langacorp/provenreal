@@ -258,8 +258,40 @@ def check_freshness(subject, timeout=60):
 # report
 # --------------------------------------------------------------------------
 
+def subject_state(res):
+    """What one subject's result says, for the exit code.
+
+    DIVERGE if any comparison, the claimed number or freshness disagrees.
+    UNMEASURED if nothing disagrees but something declared was not measured:
+    no comparison was possible, or the freshness command failed.
+    AGREE otherwise.
+    """
+    fr = res.get("freshness")
+    if res["verdict"] == DIVERGE or (fr and not fr.get("failed")
+                                     and fr["stale"]):
+        return DIVERGE
+    if res["verdict"] == UNMEASURED or (fr and fr.get("failed")):
+        return UNMEASURED
+    return AGREE
+
+
+def exit_code(results):
+    """0 everything measured agrees, 1 divergence, 2 something not measured.
+
+    One function for the text report and for --json, so that the two cannot
+    give different answers about the same run. Divergence wins over
+    not-measured: it is a finding, and it must not be hidden by a gap.
+    """
+    states = [subject_state(r) for r in results]
+    if DIVERGE in states:
+        return 1
+    if not states or UNMEASURED in states:
+        return 2
+    return 0
+
+
 def report(results, stream=sys.stdout):
-    diverging = compared = 0
+    compared = 0
     for res in results:
         c = res["coverage"]
         stream.write(f"\n{res['subject']}\n")
@@ -273,15 +305,14 @@ def report(results, stream=sys.stdout):
 
         if res["verdict"] == UNMEASURED:
             stream.write(f"  {res.get('note','')}\n")
-            continue
-        compared += 1
+        else:
+            compared += 1
 
         for cmp_ in res["comparisons"]:
             if cmp_["verdict"] == AGREE:
                 stream.write(f"    {cmp_['a']} = {cmp_['b']}: "
                              f"{cmp_['in_both']} keys, they agree\n")
                 continue
-            diverging += 1
             stream.write(f"  ! {cmp_['a']} against {cmp_['b']}: "
                          f"{cmp_['in_both']} in both, "
                          f"{len(cmp_['only_in_a'])} only in {cmp_['a']}, "
@@ -293,7 +324,6 @@ def report(results, stream=sys.stdout):
 
         cvm = res.get("claimed_vs_measured")
         if cvm and not cvm["agrees"]:
-            diverging += 1
             stream.write(f"  ! CLAIMED {cvm['claimed']}, measured "
                          f"{', '.join(f'{k}={v}' for k, v in cvm['measured'].items())}\n")
             stream.write("    The claimed number does not identify the set. "
@@ -306,7 +336,6 @@ def report(results, stream=sys.stdout):
         fr = res.get("freshness")
         if fr and not fr.get("failed"):
             if fr["stale"]:
-                diverging += 1
                 stream.write(f"  ! {len(fr['stale'])} past {fr['threshold_days']} "
                              f"days, {fr['recent']} recent\n")
                 for v in fr["stale"][:5]:
@@ -330,8 +359,14 @@ def report(results, stream=sys.stdout):
                  "disagree. Choosing is a decision.\n")
     if compared == 0:
         stream.write("NO COMPARISON WAS MADE. This is not a pass.\n")
-        return 2
-    return 1 if diverging else 0
+    else:
+        unmeasured = [r["subject"] for r in results
+                      if subject_state(r) == UNMEASURED]
+        if unmeasured:
+            stream.write(f"{len(unmeasured)} of {len(results)} subjects NOT "
+                         f"MEASURED in full: {', '.join(unmeasured)}. "
+                         f"This is not a pass.\n")
+    return exit_code(results)
 
 
 # --------------------------------------------------------------------------
@@ -486,7 +521,7 @@ def main(argv=None):
         json.dump({"version": __version__, "subjects": results},
                   sys.stdout, indent=2, ensure_ascii=False)
         sys.stdout.write("\n")
-        return 1 if any(r["verdict"] == DIVERGE for r in results) else 0
+        return exit_code(results)
     return report(results)
 
 
